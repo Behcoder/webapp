@@ -1,16 +1,88 @@
-# seify_app
+# سیفی مارکت (Seify Market)
 
-A new Flutter project.
+اپلیکیشن فروشگاه آنلاین سیفی مارکت با قابلیت مشاهده محصولات، دسته‌بندی‌ها و گالری تصاویر.
 
-## Getting Started
+## ویژگی‌ها
 
-This project is a starting point for a Flutter application.
+- 🛍️ **مشاهده محصولات**: نمایش محصولات با تصاویر و جزئیات کامل
+- 📂 **دسته‌بندی‌ها**: دسته‌بندی محصولات به صورت سلسله‌مراتبی
+- 🖼️ **گالری تصاویر**: مشاهده تصاویر محصولات و گالری
+- 📱 **طراحی ریسپانسیو**: سازگار با تمام اندازه‌های صفحه
+- 🌐 **کنترل اتصال اینترنت**: بررسی مداوم اتصال اینترنت
+- 🎨 **رابط کاربری زیبا**: طراحی مدرن و کاربرپسند
 
-A few resources to get you started if this is your first Flutter project:
+## نصب و اجرا
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### پیش‌نیازها
+- Flutter SDK (نسخه 3.2.3 یا بالاتر)
+- Dart SDK
+- Android Studio / VS Code
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### مراحل نصب
+
+1. **کلون کردن پروژه**
+```bash
+git clone https://github.com/Behcoder/android_app.git
+cd android_app
+```
+
+2. **نصب وابستگی‌ها**
+```bash
+flutter pub get
+```
+
+3. **اجرای برنامه**
+```bash
+flutter run
+```
+
+### ساخت فایل نصب
+
+**برای اندروید:**
+```bash
+flutter build apk
+```
+
+**برای ویندوز:**
+```bash
+flutter build windows
+```
+
+## ساختار پروژه
+
+```
+lib/
+├── main.dart              # نقطه ورود برنامه
+├── constants/
+│   └── app_texts.dart     # متون ثابت برنامه
+├── pages/
+│   ├── contact_us_page.dart
+│   ├── error_page.dart
+│   ├── gallery_page.dart
+│   ├── no_internet_page.dart
+│   └── static_content_page.dart
+└── widgets/
+    └── connectivity_wrapper.dart
+```
+
+## تکنولوژی‌های استفاده شده
+
+- **Flutter**: فریم‌ورک اصلی
+- **Dart**: زبان برنامه‌نویسی
+- **HTTP**: ارتباط با API
+- **Connectivity Plus**: بررسی اتصال اینترنت
+- **Lottie**: انیمیشن‌ها
+- **Carousel Slider**: اسلایدر تصاویر
+
+## نسخه‌ها
+
+- **نسخه فعلی**: 1.5.41
+- **آخرین بروزرسانی**: بهبود سیستم کنترل اتصال اینترنت
+
+## پشتیبانی
+
+برای گزارش مشکلات یا پیشنهادات، لطفاً issue جدید ایجاد کنید.
+
+## لایسنس
+
+این پروژه تحت لایسنس MIT منتشر شده است.
