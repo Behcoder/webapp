@@ -17,6 +17,7 @@ import 'pages/no_internet_page.dart';
 import 'pages/error_page.dart';
 import 'pages/gallery_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'services/connectivity_service.dart';
 
 // ==========================================
 // [main.dart-main]
@@ -104,47 +105,82 @@ class ConnectivityWrapper extends StatefulWidget {
 
 class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
   bool _isConnected = true;
+  bool _isLoading = true;
   String? _errorMessage;
+  late StreamSubscription<bool> _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
-    _checkConnectivity();
-    _setupConnectivityListener();
+    _initializeConnectivity();
   }
 
-  Future<void> _checkConnectivity() async {
+  Future<void> _initializeConnectivity() async {
     try {
-      final result = await Connectivity().checkConnectivity();
-      setState(() {
-        _isConnected = result != ConnectivityResult.none;
-        _errorMessage = null;
+      await ConnectivityService().initialize();
+      _connectivitySubscription = ConnectivityService().connectivityStream.listen((isConnected) {
+        if (mounted) {
+          setState(() {
+            _isConnected = isConnected;
+            _isLoading = false;
+            _errorMessage = null;
+          });
+        }
       });
+      
+      // بررسی اولیه
+      final isConnected = await ConnectivityService().checkConnectivity();
+      if (mounted) {
+        setState(() {
+          _isConnected = isConnected;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'خطا در بررسی اتصال اینترنت';
-      });
+      if (mounted) {
+        setState(() {
+          _isConnected = false;
+          _isLoading = false;
+          _errorMessage = 'خطا در بررسی اتصال اینترنت: $e';
+        });
+      }
     }
   }
 
-  void _setupConnectivityListener() {
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      setState(() {
-        _isConnected = results.any((result) => result != ConnectivityResult.none);
-        _errorMessage = null;
-      });
-    });
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     if (_errorMessage != null) {
       return ErrorPage(
         message: _errorMessage,
-        onRetry: _checkConnectivity,
+        onRetry: () async {
+          setState(() {
+            _isLoading = true;
+            _errorMessage = null;
+          });
+          await _initializeConnectivity();
+        },
       );
     }
-    return _isConnected ? const HomePage() : const NoInternetPage();
+    
+    if (!_isConnected) {
+      return const NoInternetPage();
+    }
+    
+    return const HomePage();
   }
 }
 
