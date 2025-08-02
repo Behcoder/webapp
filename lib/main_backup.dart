@@ -183,6 +183,8 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
 // وابستگی‌ها: Image.asset, TextField
 // ==========================================
 class CustomHeader extends StatelessWidget {
+  const CustomHeader({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -780,7 +782,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
                                     if (hasDiscount) ...[
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${regularPrice.toStringAsFixed(0)}',
+                                        regularPrice.toStringAsFixed(0),
                                         style: const TextStyle(
                                           fontSize: 10,
                                           decoration: TextDecoration.lineThrough,
@@ -1019,7 +1021,7 @@ class _NewProductsState extends State<NewProducts> {
                                   if (hasDiscount) ...[
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${regularPrice.toStringAsFixed(0)}',
+                                      regularPrice.toStringAsFixed(0),
                                       style: const TextStyle(
                                         fontSize: 10,
                                         decoration: TextDecoration.lineThrough,
@@ -1455,7 +1457,7 @@ class _ProductsPageState extends State<ProductsPage> {
 // ==========================================
 class ProductDetailPage extends StatefulWidget {
   final Map product;
-  const ProductDetailPage({Key? key, required this.product}) : super(key: key);
+  const ProductDetailPage({super.key, required this.product});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -1467,7 +1469,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final TextEditingController _emailController = TextEditingController();
   List<Map<String, dynamic>> reviews = [];
   bool isLoading = false;
-  int _currentImageIndex = 0;
+  final int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -1955,7 +1957,7 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
 }
 
 class ProductDisplayWidget extends StatefulWidget {
-  const ProductDisplayWidget({Key? key}) : super(key: key);
+  const ProductDisplayWidget({super.key});
 
   @override
   State<ProductDisplayWidget> createState() => _ProductDisplayWidgetState();
@@ -2301,7 +2303,7 @@ class _ProductDisplayWidgetState extends State<ProductDisplayWidget>
           );
         },
       ),
-    );
+    )
   }
 
   List<Widget> _buildPriceDigits(String price) {
