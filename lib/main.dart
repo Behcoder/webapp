@@ -323,85 +323,93 @@ class Footer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildFooterItem(Icons.home, 'خانه', () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
-              }),
-              _buildFooterItem(Icons.category, 'دسته‌بندی‌ها', () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CategoriesPage()),
-                );
-              }),
-              _buildFooterItem(Icons.photo_library, 'گالری تصاویر', () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const GalleryPage()),
-                );
-              }),
-              _buildFooterItem(Icons.info_outline, 'درباره ما', () {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 8),
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(2),
+              Flexible(
+                child: _buildFooterItem(Icons.home, 'خانه', () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                  );
+                }),
+              ),
+              Flexible(
+                child: _buildFooterItem(Icons.category, 'دسته‌بندی‌ها', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CategoriesPage()),
+                  );
+                }),
+              ),
+              Flexible(
+                child: _buildFooterItem(Icons.photo_library, 'گالری تصاویر', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GalleryPage()),
+                  );
+                }),
+              ),
+              Flexible(
+                child: _buildFooterItem(Icons.info_outline, 'درباره ما', () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 8),
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildAboutItem(Icons.info_outline, 'درباره ما', () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const StaticContentPage(
-                                title: 'درباره ما',
-                                content: AppTexts.aboutUs,
+                          const SizedBox(height: 24),
+                          _buildAboutItem(Icons.info_outline, 'درباره ما', () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const StaticContentPage(
+                                  title: 'درباره ما',
+                                  content: AppTexts.aboutUs,
+                                ),
                               ),
-                            ),
-                          );
-                        }),
-                        _buildAboutItem(Icons.phone, 'تماس با ما', () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ContactUsPage(),
-                            ),
-                          );
-                        }),
-                        _buildAboutItem(Icons.privacy_tip, 'حریم خصوصی', () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const StaticContentPage(
-                                title: 'حریم خصوصی',
-                                content: AppTexts.privacyPolicy,
+                            );
+                          }),
+                          _buildAboutItem(Icons.phone, 'تماس با ما', () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ContactUsPage(),
                               ),
-                            ),
-                          );
-                        }),
-                        const SizedBox(height: 24),
-                      ],
+                            );
+                          }),
+                          _buildAboutItem(Icons.privacy_tip, 'حریم خصوصی', () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const StaticContentPage(
+                                  title: 'حریم خصوصی',
+                                  content: AppTexts.privacyPolicy,
+                                ),
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              )
             ],
           ),
         ],
@@ -413,7 +421,7 @@ class Footer extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -423,8 +431,11 @@ class Footer extends StatelessWidget {
               label,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: 10,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -671,26 +682,35 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'محصولات ویژه',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                flex: 2,
+                child: const Text(
+                  'محصولات ویژه',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductsPage(
-                        categoryId: featuredCategoryId!,
-                        categoryName: 'محصولات ویژه',
+              Flexible(
+                flex: 1,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductsPage(
+                          categoryId: featuredCategoryId!,
+                          categoryName: 'محصولات ویژه',
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: const Text('مشاهده همه'),
+                    );
+                  },
+                  child: const Text(
+                    'مشاهده همه',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
               ),
             ],
           ),
@@ -913,26 +933,35 @@ class _NewProductsState extends State<NewProducts> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'محصولات پیشنهادی',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                flex: 2,
+                child: const Text(
+                  'محصولات پیشنهادی',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProductsPage(
-                        categoryId: null,
-                        categoryName: 'محصولات پیشنهادی',
+              Flexible(
+                flex: 1,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProductsPage(
+                          categoryId: null,
+                          categoryName: 'محصولات پیشنهادی',
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: const Text('مشاهده همه'),
+                    );
+                  },
+                  child: const Text(
+                    'مشاهده همه',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
               ),
             ],
           ),
