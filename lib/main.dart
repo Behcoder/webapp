@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math';
 import 'dart:async';
@@ -191,8 +190,8 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
 // وابستگی‌ها: Image.asset, TextField
 // ==========================================
 class CustomHeader extends StatelessWidget {
-  const CustomHeader({super.key});
-
+  const CustomHeader({Key? key}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -201,7 +200,7 @@ class CustomHeader extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: Offset(0, 2),
           ),
@@ -263,8 +262,37 @@ class CustomHeader extends StatelessWidget {
 // توضیحات: صفحه اصلی برنامه شامل اسلایدر، دسته‌بندی‌ها و محصولات
 // وابستگی‌ها: CustomHeader, BannerSlider, CategoryMenu, FeaturedProducts, NewProducts, Footer
 // ==========================================
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final String phoneNumber = '09301574901'; // شماره موبایل مورد نظر
+
+  Future<void> _launchPhoneDialer(String phoneNumber, BuildContext context) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    try {
+      if (await launchUrl(launchUri)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('در حال باز کردن شماره‌گیر...')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('امکان برقراری تماس وجود ندارد.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطا در برقراری تماس: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +302,54 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               CustomHeader(),
+              // بخش نمایش شماره موبایل
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  elevation: 4,
+                  color: Colors.blue.shade50, // Added background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => _launchPhoneDialer(phoneNumber, context),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.phone,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            phoneNumber,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '(برای تماس کلیک کنید)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blueGrey.shade700,
+                              ),
+                              overflow: TextOverflow.ellipsis, // Optional: for very long texts
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               BannerSlider(),
               // CategoryMenu(), // Removed CategoryMenu
               // New section for Parent Categories
@@ -325,93 +401,85 @@ class Footer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Flexible(
-                child: _buildFooterItem(Icons.home, 'خانه', () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                }),
-              ),
-              Flexible(
-                child: _buildFooterItem(Icons.category, 'دسته‌بندی‌ها', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CategoriesPage()),
-                  );
-                }),
-              ),
-              Flexible(
-                child: _buildFooterItem(Icons.photo_library, 'گالری تصاویر', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const GalleryPage()),
-                  );
-                }),
-              ),
-              Flexible(
-                child: _buildFooterItem(Icons.info_outline, 'درباره ما', () {
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 8),
-                            width: 40,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          _buildAboutItem(Icons.info_outline, 'درباره ما', () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const StaticContentPage(
-                                  title: 'درباره ما',
-                                  content: AppTexts.aboutUs,
-                                ),
-                              ),
-                            );
-                          }),
-                          _buildAboutItem(Icons.phone, 'تماس با ما', () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ContactUsPage(),
-                              ),
-                            );
-                          }),
-                          _buildAboutItem(Icons.privacy_tip, 'حریم خصوصی', () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const StaticContentPage(
-                                  title: 'حریم خصوصی',
-                                  content: AppTexts.privacyPolicy,
-                                ),
-                              ),
-                            );
-                          }),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
+              _buildFooterItem(Icons.home, 'خانه', () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              }),
+              _buildFooterItem(Icons.category, 'دسته‌بندی‌ها', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CategoriesPage()),
+                );
+              }),
+              _buildFooterItem(Icons.photo_library, 'گالری تصاویر', () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GalleryPage()),
+                );
+              }),
+              _buildFooterItem(Icons.info_outline, 'درباره ما', () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                     ),
-                  );
-                }),
-              )
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 8),
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildAboutItem(Icons.info_outline, 'درباره ما', () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StaticContentPage(
+                                title: 'درباره ما',
+                                content: AppTexts.aboutUs,
+                              ),
+                            ),
+                          );
+                        }),
+                        _buildAboutItem(Icons.phone, 'تماس با ما', () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ContactUsPage(),
+                            ),
+                          );
+                        }),
+                        _buildAboutItem(Icons.privacy_tip, 'حریم خصوصی', () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StaticContentPage(
+                                title: 'حریم خصوصی',
+                                content: AppTexts.privacyPolicy,
+                              ),
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ],
@@ -423,7 +491,7 @@ class Footer extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -433,11 +501,8 @@ class Footer extends StatelessWidget {
               label,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 10,
+                fontSize: 12,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -684,35 +749,26 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                flex: 2,
-                child: const Text(
-                  'محصولات ویژه',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const Text(
+                'محصولات ویژه',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Flexible(
-                flex: 1,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductsPage(
-                          categoryId: featuredCategoryId!,
-                          categoryName: 'محصولات ویژه',
-                        ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductsPage(
+                        categoryId: featuredCategoryId!,
+                        categoryName: 'محصولات ویژه',
                       ),
-                    );
-                  },
-                  child: const Text(
-                    'مشاهده همه',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
+                    ),
+                  );
+                },
+                child: const Text('مشاهده همه'),
               ),
             ],
           ),
@@ -808,7 +864,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
                                     if (hasDiscount) ...[
                                       const SizedBox(width: 4),
                                       Text(
-                                        regularPrice.toStringAsFixed(0),
+                                        '${regularPrice.toStringAsFixed(0)}',
                                         style: const TextStyle(
                                           fontSize: 10,
                                           decoration: TextDecoration.lineThrough,
@@ -935,35 +991,26 @@ class _NewProductsState extends State<NewProducts> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                flex: 2,
-                child: const Text(
-                  'محصولات پیشنهادی',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const Text(
+                'محصولات پیشنهادی',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Flexible(
-                flex: 1,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProductsPage(
-                          categoryId: null,
-                          categoryName: 'محصولات پیشنهادی',
-                        ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProductsPage(
+                        categoryId: null,
+                        categoryName: 'محصولات پیشنهادی',
                       ),
-                    );
-                  },
-                  child: const Text(
-                    'مشاهده همه',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
+                    ),
+                  );
+                },
+                child: const Text('مشاهده همه'),
               ),
             ],
           ),
@@ -1056,7 +1103,7 @@ class _NewProductsState extends State<NewProducts> {
                                   if (hasDiscount) ...[
                                     const SizedBox(width: 4),
                                     Text(
-                                      regularPrice.toStringAsFixed(0),
+                                      '${regularPrice.toStringAsFixed(0)}',
                                       style: const TextStyle(
                                         fontSize: 10,
                                         decoration: TextDecoration.lineThrough,
@@ -1114,7 +1161,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       if (response.statusCode == 200) {
         setState(() {
           mainCategories = (json.decode(response.body) as List)
-              .where((cat) => cat['name']?.toString().toLowerCase() != 'test')
+              .where((cat) => cat['name']?.toString().toLowerCase() != 'test' && cat['name']?.toString().toLowerCase() != 'محصولات ویژه اپ' && (cat['count'] ?? 0) > 0)
               .toList();
           isLoading = false;
           errorMsg = null;
@@ -1492,7 +1539,7 @@ class _ProductsPageState extends State<ProductsPage> {
 // ==========================================
 class ProductDetailPage extends StatefulWidget {
   final Map product;
-  const ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({Key? key, required this.product}) : super(key: key);
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -1504,7 +1551,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final TextEditingController _emailController = TextEditingController();
   List<Map<String, dynamic>> reviews = [];
   bool isLoading = false;
-  final int _currentImageIndex = 0;
+  int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -1869,7 +1916,9 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         setState(() {
-          categories = json.decode(response.body);
+          categories = (json.decode(response.body) as List)
+              .where((cat) => (cat['count'] ?? 0) > 0 && cat['name']?.toString().toLowerCase() != 'محصولات ویژه اپ')
+              .toList();
           isLoading = false;
           errorMsg = null;
         });
