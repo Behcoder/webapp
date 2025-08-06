@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/app_texts.dart';
 
 class StaticContentPage extends StatelessWidget {
   final String title;
