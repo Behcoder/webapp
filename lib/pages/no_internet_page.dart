@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import '../services/connectivity_service.dart';
 
 class NoInternetPage extends StatefulWidget {
@@ -19,31 +18,10 @@ class _NoInternetPageState extends State<NoInternetPage> {
 
     try {
       final isConnected = await ConnectivityService().checkConnectivity();
-      
       if (isConnected) {
-        // اگر اتصال برقرار شد، به صفحه اصلی برو
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/');
+          Navigator.pushReplacementNamed(context, '/home');
         }
-      } else {
-        // اگر هنوز اتصال برقرار نیست، پیام نمایش بده
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('اتصال اینترنت هنوز برقرار نیست'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('خطا در بررسی اتصال: $e'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
       }
     } finally {
       if (mounted) {
@@ -61,12 +39,26 @@ class _NoInternetPageState extends State<NoInternetPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // انیمیشن قطع اینترنت
-            Lottie.asset(
-              'assets/animations/no_internet.json',
-              width: 200,
-              height: 200,
-              repeat: true,
+            Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  'assets/img/etc/login-error.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -89,13 +81,13 @@ class _NoInternetPageState extends State<NoInternetPage> {
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: _isChecking ? null : _checkConnection,
-              icon: _isChecking 
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.refresh),
+              icon: _isChecking
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
               label: Text(_isChecking ? 'در حال بررسی...' : 'تلاش مجدد'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,

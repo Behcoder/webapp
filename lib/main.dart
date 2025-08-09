@@ -18,6 +18,7 @@ import 'pages/gallery_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'services/connectivity_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'pages/splash_screen.dart';
 
 // ==========================================
 // [main.dart-main]
@@ -91,7 +92,10 @@ class MyApp extends StatelessWidget {
         Locale('fa', ''),
       ],
       locale: const Locale('fa', ''),
-      home: const ConnectivityWrapper(),
+      home: const SplashScreen(),
+      routes: {
+        '/home': (context) => const ConnectivityWrapper(),
+      },
     );
   }
 }
@@ -769,7 +773,12 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
     if (errorMsg != null) {
       return SizedBox(
         height: 200,
-        child: Center(child: Text(errorMsg!, style: const TextStyle(color: Colors.red))),
+        child: Center(
+          child: Image.asset(
+            'assets/img/etc/login-error.jpg',
+            fit: BoxFit.contain,
+          ),
+        ),
       );
     }
 
@@ -1011,7 +1020,12 @@ class _NewProductsState extends State<NewProducts> {
     if (errorMsg != null) {
       return SizedBox(
         height: 200,
-        child: Center(child: Text(errorMsg!, style: const TextStyle(color: Colors.red))),
+        child: Center(
+          child: Image.asset(
+            'assets/img/etc/login-error.jpg',
+            fit: BoxFit.contain,
+          ),
+        ),
       );
     }
 
