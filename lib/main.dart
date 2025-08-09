@@ -17,6 +17,7 @@ import 'pages/error_page.dart';
 import 'pages/gallery_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'services/connectivity_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 // ==========================================
 // [main.dart-main]
@@ -336,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              '(برای تماس کلیک کنید)',
+                              'تماس با ما',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.blueGrey.shade700,
@@ -384,8 +385,34 @@ class _HomePageState extends State<HomePage> {
 // توضیحات: فوتر برنامه شامل لینک‌ها و اطلاعات تماس
 // وابستگی‌ها: Row, Column, TextButton
 // ==========================================
-class Footer extends StatelessWidget {
+class Footer extends StatefulWidget {
   const Footer({super.key});
+
+  @override
+  State<Footer> createState() => _FooterState();
+}
+
+class _FooterState extends State<Footer> {
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getAppVersion();
+  }
+
+  Future<void> _getAppVersion() async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = 'نسخه ${packageInfo.version}';
+      });
+    } catch (e) {
+      setState(() {
+        _appVersion = 'نسخه ۱.۵.۴۲';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -482,6 +509,18 @@ class Footer extends StatelessWidget {
               }),
             ],
           ),
+          // نمایش ورژن برنامه
+          if (_appVersion.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              _appVersion,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );
