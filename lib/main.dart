@@ -621,8 +621,10 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        final allProducts = json.decode(response.body) as List;
         setState(() {
-          products = json.decode(response.body);
+          // محدود کردن تعداد محصولات به 7 عدد
+          products = allProducts.take(7).toList();
           isLoading = false;
           errorMsg = null;
         });
@@ -1081,10 +1083,38 @@ class _CategoriesPageState extends State<CategoriesPage> {
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        final allCategories = json.decode(response.body) as List;
+        
+        // فیلتر کردن دسته‌بندی‌های خالی (بدون محصول)
+        List nonEmptyCategories = [];
+        for (var category in allCategories) {
+          // فیلتر کردن دسته‌بندی‌های test و محصولات ویژه اپ
+          if (category['name']?.toString().toLowerCase() == 'test' || 
+              category['name']?.toString().toLowerCase() == 'محصولات ویژه اپ' ||
+              category['name']?.toString().toLowerCase() == 'فروش ویژه') {
+            continue;
+          }
+          
+          final categoryId = category['id'];
+          final productsUrl = Uri.parse(
+              'https://seify.ir/wp-json/wc/v3/products?consumer_key=ck_278d4ac63be04448206d8aec329301bd58831670&consumer_secret=cs_c4d143188011db4cce3137dd7c046c435f18114b&category=$categoryId&per_page=1');
+          
+          try {
+            final productsResponse = await http.get(productsUrl);
+            if (productsResponse.statusCode == 200) {
+              final products = json.decode(productsResponse.body) as List;
+              if (products.isNotEmpty) {
+                nonEmptyCategories.add(category);
+              }
+            }
+          } catch (e) {
+            // در صورت خطا، دسته‌بندی را نادیده می‌گیریم
+            continue;
+          }
+        }
+        
         setState(() {
-          mainCategories = (json.decode(response.body) as List)
-              .where((cat) => cat['name']?.toString().toLowerCase() != 'test')
-              .toList();
+          mainCategories = nonEmptyCategories;
           isLoading = false;
           errorMsg = null;
           if (mainCategories.isNotEmpty) {
@@ -1111,8 +1141,31 @@ class _CategoriesPageState extends State<CategoriesPage> {
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        final allSubCategories = json.decode(response.body) as List;
+        
+        // فیلتر کردن زیر دسته‌بندی‌های خالی (بدون محصول)
+        List nonEmptySubCategories = [];
+        for (var category in allSubCategories) {
+          final categoryId = category['id'];
+          final productsUrl = Uri.parse(
+              'https://seify.ir/wp-json/wc/v3/products?consumer_key=ck_278d4ac63be04448206d8aec329301bd58831670&consumer_secret=cs_c4d143188011db4cce3137dd7c046c435f18114b&category=$categoryId&per_page=1');
+          
+          try {
+            final productsResponse = await http.get(productsUrl);
+            if (productsResponse.statusCode == 200) {
+              final products = json.decode(productsResponse.body) as List;
+              if (products.isNotEmpty) {
+                nonEmptySubCategories.add(category);
+              }
+            }
+          } catch (e) {
+            // در صورت خطا، دسته‌بندی را نادیده می‌گیریم
+            continue;
+          }
+        }
+        
         setState(() {
-          subCategories = json.decode(response.body) as List;
+          subCategories = nonEmptySubCategories;
         });
       }
     } catch (e) {
@@ -1837,8 +1890,38 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        final allCategories = json.decode(response.body) as List;
+        
+        // فیلتر کردن دسته‌بندی‌های خالی (بدون محصول)
+        List nonEmptyCategories = [];
+        for (var category in allCategories) {
+          // فیلتر کردن دسته‌بندی‌های test و محصولات ویژه اپ
+          if (category['name']?.toString().toLowerCase() == 'test' || 
+              category['name']?.toString().toLowerCase() == 'محصولات ویژه اپ' ||
+              category['name']?.toString().toLowerCase() == 'فروش ویژه') {
+            continue;
+          }
+          
+          final categoryId = category['id'];
+          final productsUrl = Uri.parse(
+              'https://seify.ir/wp-json/wc/v3/products?consumer_key=ck_278d4ac63be04448206d8aec329301bd58831670&consumer_secret=cs_c4d143188011db4cce3137dd7c046c435f18114b&category=$categoryId&per_page=1');
+          
+          try {
+            final productsResponse = await http.get(productsUrl);
+            if (productsResponse.statusCode == 200) {
+              final products = json.decode(productsResponse.body) as List;
+              if (products.isNotEmpty) {
+                nonEmptyCategories.add(category);
+              }
+            }
+          } catch (e) {
+            // در صورت خطا، دسته‌بندی را نادیده می‌گیریم
+            continue;
+          }
+        }
+        
         setState(() {
-          categories = json.decode(response.body);
+          categories = nonEmptyCategories;
           isLoading = false;
           errorMsg = null;
         });
