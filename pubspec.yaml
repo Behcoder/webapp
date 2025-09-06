@@ -33,7 +33,7 @@ dependencies:
   http: ^1.1.0
   flutter_localizations:
     sdk: flutter
-  flutter_carousel_widget: ^3.1.0
+  # flutter_carousel_widget: ^3.1.0 # Removed
   html: ^0.15.4
   url_launcher: ^6.3.2
   carousel_slider: ^5.1.1
@@ -44,6 +44,7 @@ dependencies:
   intl: ^0.20.2
   connectivity_plus: ^6.1.4
   lottie: ^3.3.1
+  package_info_plus: ^8.0.2
   flutter_launcher_icons: ^0.14.4
 
   # The following adds the Cupertino Icons font to your application.
@@ -126,8 +127,8 @@ flutter:
     - assets/img/banner/1.png
     - assets/img/banner/2.png
     - assets/img/banner/3.png
-    - assets/img/ui 1.png
     - assets/img/logo.png
+    - assets/img/etc/login-wait.jpg
     - assets/img/gallery/general/DSC_1037.jpg
     - assets/img/gallery/general/DSC_1040.jpg
     - assets/img/gallery/general/DSC_1043.jpg

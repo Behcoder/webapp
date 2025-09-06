@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
 import 'dart:convert';
 
 class GalleryPage extends StatefulWidget {
-  const GalleryPage({Key? key}) : super(key: key);
+  const GalleryPage({super.key});
 
   @override
   State<GalleryPage> createState() => _GalleryPageState();
