@@ -136,7 +136,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
               'آدرس',
               'بازار آهن شاد آباد، پاییزان',
               () async {
-                // TODO: Open map with location
+                // باز کردن نقشه
+                const url = 'https://maps.google.com/?q=35.6892,51.3890'; // مختصات تهران
+                await launchUrl(Uri.parse(url));
               },
             ),
             const SizedBox(height: 32),

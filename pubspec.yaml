@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.5.43+1
+version: 1.5.50+1
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -26,26 +26,25 @@ environment:
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
 # dependencies can be manually updated by changing the version numbers below to
 # the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
+  # versions available, run `flutter pub outdated`.  
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
+  http: ^1.2.1
   flutter_localizations:
     sdk: flutter
-  # flutter_carousel_widget: ^3.1.0 # Removed
   html: ^0.15.4
-  url_launcher: ^6.3.2
-  carousel_slider: ^5.1.1
+  url_launcher: ^6.3.0
+  carousel_slider: ^5.0.0
   cupertino_icons: ^1.0.2
-  google_fonts: ^6.1.0
-  mailer: ^6.1.0
+  google_fonts: ^6.2.1
+  mailer: ^6.0.1
   shared_preferences: ^2.2.2
   intl: ^0.20.2
-  connectivity_plus: ^6.1.4
-  lottie: ^3.3.1
-  package_info_plus: ^8.0.2
-  flutter_launcher_icons: ^0.14.4
+  connectivity_plus: ^6.0.3
+  lottie: ^3.1.2
+  package_info_plus: ^8.0.0
+  flutter_dotenv: ^5.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,14 +58,15 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^4.0.0
 
 # Flutter Launcher Icons configuration
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icon/app_icon.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
+  min_sdk_android: 23 # android min sdk min:16, default 21
   web:
     generate: true
     image_path: "assets/icon/app_icon.png"
@@ -123,22 +123,13 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
   assets:
-    - assets/img/
-    - assets/img/banner/1.png
-    - assets/img/banner/2.png
-    - assets/img/banner/3.png
-    - assets/img/logo.png
-    - assets/img/etc/login-wait.jpg
-    - assets/img/gallery/general/DSC_1037.jpg
-    - assets/img/gallery/general/DSC_1040.jpg
-    - assets/img/gallery/general/DSC_1043.jpg
-    - assets/img/gallery/general/DSC_1046.jpg
-    - assets/img/gallery/products/DSC_1052.jpg
-    - assets/img/gallery/products/DSC_1054.jpg
-    - assets/img/gallery/products/DSC_1068.jpg
+    - assets/img/ # This includes all subdirectories and files
+    - assets/img/banner/ # This is also included by the line above, but can be kept for clarity if you wish
+    - assets/img/gallery/
     - assets/fonts/
     - assets/icon/
     - assets/animations/
+    - assets/config.env
 
   fonts:
     - family: Vazirmatn
