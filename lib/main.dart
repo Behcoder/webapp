@@ -16,6 +16,7 @@ import 'pages/error_page.dart';
 import 'pages/gallery_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'services/connectivity_service.dart';
+import 'utils/url_utils.dart';
 
 // ==========================================
 // [main.dart-main]
@@ -279,8 +280,7 @@ class HomePage extends StatelessWidget {
               // CategoryMenu(), // Removed CategoryMenu
               // New section for Parent Categories
               Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
@@ -725,7 +725,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
               final product =
                   products[index]; // Use original index as we are now bouncing
               final imageUrl = product['images']?.isNotEmpty == true
-                  ? product['images'][0]['src']
+                  ? UrlUtils.convertSeifyImageUrl(product['images'][0]['src'])
                   : null;
               final price = product['price'] != null
                   ? double.tryParse(product['price'])
@@ -770,7 +770,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16)),
                             child: Image.network(
-                              imageUrl,
+                              UrlUtils.convertSeifyImageUrl(imageUrl),
                               height: 120,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -917,6 +917,92 @@ class _NewProductsState extends State<NewProducts> {
     }
   }
 
+  Widget _buildProductImage(Map product) {
+    // لیست تصاویر محلی برای استفاده به عنوان جایگزین
+    final List<String> fallbackImages = [
+      'assets/img/gallery/products/DSC_1052.jpg',
+      'assets/img/gallery/products/DSC_1054.jpg',
+      'assets/img/gallery/products/DSC_1068.jpg',
+    ];
+
+    // انتخاب تصویر تصادفی از لیست محلی
+    final randomIndex =
+        product['id'] != null ? (product['id'] % fallbackImages.length) : 0;
+    final fallbackImage = fallbackImages[randomIndex];
+
+    if (product['images'] != null && product['images'].isNotEmpty) {
+      return Image.network(
+        UrlUtils.convertSeifyImageUrl(product['images'][0]['src']),
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading product image: ${product['images'][0]['src']}');
+          // در صورت خطا، از تصویر محلی استفاده کن
+          return Image.asset(
+            fallbackImage,
+            height: 120,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 120,
+                color: Colors.grey.shade200,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image,
+                        size: 32, color: Colors.grey.shade400),
+                    const SizedBox(height: 4),
+                    Text(
+                      'خطا در بارگذاری',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            height: 120,
+            color: Colors.grey.shade200,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // اگر تصویر محصول وجود ندارد، از تصویر محلی استفاده کن
+      return Image.asset(
+        fallbackImage,
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: 120,
+            color: Colors.grey.shade200,
+            child: Center(
+              child: Icon(Icons.image, size: 48, color: Colors.grey.shade400),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -1024,7 +1110,7 @@ class _NewProductsState extends State<NewProducts> {
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(16)),
                           child: Image.network(
-                            imageUrl,
+                            UrlUtils.convertSeifyImageUrl(imageUrl),
                             height: 120,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -1256,7 +1342,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                 leading: cat['image'] != null &&
                                         cat['image']['src'] != null
                                     ? Image.network(
-                                        cat['image']['src'],
+                                        UrlUtils.convertSeifyImageUrl(cat['image']['src']),
                                         width: 32,
                                         height: 32,
                                         fit: BoxFit.cover,
@@ -1345,7 +1431,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                                       cat['image']['src'] !=
                                                           null
                                                   ? Image.network(
-                                                      cat['image']['src'],
+                                                      UrlUtils.convertSeifyImageUrl(cat['image']['src']),
                                                       height: 100,
                                                       width: double.infinity,
                                                       fit: BoxFit.cover,
@@ -1486,6 +1572,93 @@ class _ProductsPageState extends State<ProductsPage> {
     }
   }
 
+  Widget _buildProductImage(Map product) {
+    // لیست تصاویر محلی برای استفاده به عنوان جایگزین
+    final List<String> fallbackImages = [
+      'assets/img/gallery/products/DSC_1052.jpg',
+      'assets/img/gallery/products/DSC_1054.jpg',
+      'assets/img/gallery/products/DSC_1068.jpg',
+    ];
+    
+    // انتخاب تصویر تصادفی از لیست محلی
+    final randomIndex = product['id'] != null ? (product['id'] % fallbackImages.length) : 0;
+    final fallbackImage = fallbackImages[randomIndex];
+
+    if (product['images'] != null && product['images'].isNotEmpty) {
+      return Image.network(
+        UrlUtils.convertSeifyImageUrl(product['images'][0]['src']),
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          print('Error loading product image: ${product['images'][0]['src']}');
+          // در صورت خطا، از تصویر محلی استفاده کن
+          return Image.asset(
+            fallbackImage,
+            height: 120,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 120,
+                color: Colors.grey.shade200,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image,
+                        size: 32,
+                        color: Colors.grey.shade400),
+                    const SizedBox(height: 4),
+                    Text(
+                      'خطا در بارگذاری',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            height: 120,
+            color: Colors.grey.shade200,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // اگر تصویر محصول وجود ندارد، از تصویر محلی استفاده کن
+      return Image.asset(
+        fallbackImage,
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: 120,
+            color: Colors.grey.shade200,
+            child: Center(
+              child: Icon(Icons.image,
+                  size: 48,
+                  color: Colors.grey.shade400),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1532,23 +1705,7 @@ class _ProductsPageState extends State<ProductsPage> {
                               ClipRRect(
                                 borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(16)),
-                                child: product['images'] != null &&
-                                        product['images'].isNotEmpty
-                                    ? Image.network(
-                                        product['images'][0]['src'],
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        height: 120,
-                                        color: Colors.grey.shade200,
-                                        child: Center(
-                                          child: Icon(Icons.image,
-                                              size: 48,
-                                              color: Colors.grey.shade400),
-                                        ),
-                                      ),
+                                child: _buildProductImage(product),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(12),
@@ -1791,7 +1948,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  image['src'],
+                                  UrlUtils.convertSeifyImageUrl(image['src']),
                                   fit: BoxFit.cover,
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
@@ -1806,6 +1963,40 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                                 loadingProgress
                                                     .expectedTotalBytes!
                                             : null,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print(
+                                        'Error loading detail image: ${image['src']}');
+                                    return Container(
+                                      height: 300,
+                                      color: Colors.grey.shade200,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.broken_image,
+                                              size: 64,
+                                              color: Colors.grey.shade400),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            'خطا در بارگذاری تصویر',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'لطفاً اتصال اینترنت خود را بررسی کنید',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade500,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
                                       ),
                                     );
                                   },
@@ -2129,7 +2320,7 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        imageUrl,
+                        UrlUtils.convertSeifyImageUrl(imageUrl),
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,

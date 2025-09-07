@@ -20,7 +20,8 @@ class UrlUtils {
     if (uri == null) return inputUrl;
 
     // Already on target domain/path
-    if ((uri.host == 'app.seify.ir') && uri.pathSegments.isNotEmpty &&
+    if ((uri.host == 'app.seify.ir') &&
+        uri.pathSegments.isNotEmpty &&
         uri.pathSegments.first == 'media') {
       return uri.toString();
     }
@@ -44,5 +45,3 @@ class UrlUtils {
     return inputUrl;
   }
 }
-
-
