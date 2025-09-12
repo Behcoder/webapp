@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -53,35 +51,33 @@ class _GalleryPageState extends State<GalleryPage>
 
   Future<void> _loadAssets() async {
     try {
-      // کل AssetManifest را بخوان
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifest = json.decode(manifestContent);
-
-      // فقط مسیرهای داخل assets/img/gallery/ و با پسوند مجاز
-      final allGalleryAssets = manifest.keys.where((k) {
-        if (!k.startsWith('assets/img/gallery/')) return false;
-        return _allowedExt.any((ext) => k.endsWith(ext));
-      });
-
-      // گروه‌بندی بر اساس نام دسته (اولین قطعه بعد از gallery/)
-      final Map<String, List<String>> grouped = {};
-      for (final path in allGalleryAssets) {
-        final rest = path.substring('assets/img/gallery/'.length);
-        final slash = rest.indexOf('/');
-        if (slash <= 0) continue;
-        final slug = rest.substring(0, slash);
-        grouped.putIfAbsent(slug, () => []).add(path);
-      }
-
-      // مرتب‌سازی هر لیست برای نمایش پایدار
-      for (final e in grouped.entries) {
-        e.value.sort();
-      }
-
-      // اگر چیزی پیدا نشد، خطا بده تا سریع متوجه شویم
-      if (grouped.isEmpty) {
-        throw Exception('No gallery assets found under assets/img/gallery/');
-      }
+      // استفاده از لیست ثابت بر اساس فایل‌های موجود
+      final Map<String, List<String>> grouped = {
+        'general': [
+          'assets/img/gallery/general/1.webp',
+          'assets/img/gallery/general/1001.png',
+          'assets/img/gallery/general/1002.png',
+          'assets/img/gallery/general/1101.jpg',
+          'assets/img/gallery/general/1102.jpg',
+          'assets/img/gallery/general/2.webp',
+          'assets/img/gallery/general/test.webp',
+        ],
+        'API': [
+          'assets/img/gallery/API/DSC_1052.jpg',
+        ],
+        'galvanized': [
+          'assets/img/gallery/galvanized/DSC_1043.jpg',
+        ],
+        'gas': [
+          'assets/img/gallery/gas/DSC_1037.jpg',
+        ],
+        'manismann': [
+          'assets/img/gallery/manismann/DSC_1040.jpg',
+        ],
+        'spiral': [
+          'assets/img/gallery/spiral/DSC_1046.jpg',
+        ],
+      };
 
       // مرتب‌سازی کلیدها مطابق ترتیب دلخواه، سپس بقیه
       final orderedKeys = [
