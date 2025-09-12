@@ -5,7 +5,7 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen>
@@ -17,13 +17,13 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // تنظیم انیمیشن fade
     _fadeController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -31,10 +31,10 @@ class _SplashScreenState extends State<SplashScreen>
       parent: _fadeController,
       curve: Curves.easeInOut,
     ));
-    
+
     // شروع انیمیشن fade-in
     _fadeController.forward();
-    
+
     // شبیه‌سازی لود شدن داده‌ها
     _loadData();
   }
@@ -43,15 +43,15 @@ class _SplashScreenState extends State<SplashScreen>
     // در اینجا می‌توانید داده‌های واقعی را لود کنید
     // برای مثال: محصولات، دسته‌بندی‌ها، تنظیمات و...
     await Future.delayed(const Duration(seconds: 3));
-    
+
     if (mounted) {
       setState(() {
         _isDataLoaded = true;
       });
-      
+
       // fade-out و انتقال به صفحه اصلی
       await _fadeController.reverse();
-      
+
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -96,9 +96,9 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // متن لودینگ
               Text(
                 'سیفی مارکت',
@@ -109,17 +109,18 @@ class _SplashScreenState extends State<SplashScreen>
                   fontFamily: 'Vazirmatn',
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // نشانگر بارگذاری
               if (!_isDataLoaded)
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
                 ),
-              
+
               const SizedBox(height: 20),
-              
+
               // متن وضعیت
               Text(
                 _isDataLoaded ? 'آماده است...' : 'در حال بارگذاری...',

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -9,10 +8,21 @@ class GalleryPage extends StatefulWidget {
   State<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage>
-    with TickerProviderStateMixin {
-  TabController? _tabController;
+class _GalleryPageState extends State<GalleryPage> {
   Map<String, List<String>> galleryImages = {};
+  String selectedCategory = 'عمومی';
+  bool isLoading = true;
+
+  // دسته‌بندی‌ها به ترتیب الفبا (عمومی همیشه اول)
+  final List<String> categories = [
+    'عمومی',
+    'API',
+    'اسپیرال',
+    'گازی',
+    'گالوانیزه',
+    'داربستی',
+    'مانیسمان',
+  ];
 
   @override
   void initState() {
@@ -21,131 +31,149 @@ class _GalleryPageState extends State<GalleryPage>
   }
 
   Future<void> _loadGalleryImages() async {
-    try {
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-      final generalImages = manifestMap.keys
-          .where((String key) => key.startsWith('assets/img/gallery/general/'))
-          .where((String key) =>
-              key.endsWith('.jpg') ||
-              key.endsWith('.png') ||
-              key.endsWith('.jpeg'))
-          .toList();
-      final productImages = manifestMap.keys
-          .where((String key) => key.startsWith('assets/img/gallery/products/'))
-          .where((String key) =>
-              key.endsWith('.jpg') ||
-              key.endsWith('.png') ||
-              key.endsWith('.jpeg'))
-          .toList();
+    // تعریف مسیرهای پوشه‌ها
+    final Map<String, String> categoryPaths = {
+      'عمومی': 'assets/img/gallery/general',
+      'API': 'assets/img/gallery/API',
+      'اسپیرال': 'assets/img/gallery/spiral',
+      'گازی': 'assets/img/gallery/gas',
+      'گالوانیزه': 'assets/img/gallery/galvanized',
+      'داربستی': 'assets/img/gallery/scaffold',
+      'مانیسمان': 'assets/img/gallery/manismann',
+    };
 
-      // اگر تصاویر از manifest بارگذاری نشدند، از لیست ثابت استفاده کن
-      if (generalImages.isEmpty && productImages.isEmpty) {
-        throw Exception('No images found in manifest');
-      }
+    // تعریف فایل‌های موجود در هر پوشه
+    final Map<String, List<String>> categoryFiles = {
+      'عمومی': [
+        '1.webp',
+        '2.webp',
+        '1001.png',
+        '1002.png',
+        '1101.jpg',
+        '1102.jpg',
+      ],
+      'API': ['DSC_1052.jpg'],
+      'اسپیرال': ['DSC_1046.jpg'],
+      'گازی': ['DSC_1037.jpg'],
+      'گالوانیزه': ['DSC_1043.jpg'],
+      'داربستی': [],
+      'مانیسمان': ['DSC_1040.jpg'],
+    };
 
-      setState(() {
-        galleryImages = {
-          'محصولات': productImages.isNotEmpty
-              ? productImages
-              : [
-                  'assets/img/gallery/products/DSC_1052.jpg',
-                  'assets/img/gallery/products/DSC_1054.jpg',
-                  'assets/img/gallery/products/DSC_1068.jpg',
-                ],
-          'عمومی': generalImages.isNotEmpty
-              ? generalImages
-              : [
-                  'assets/img/gallery/general/DSC_1037.jpg',
-                  'assets/img/gallery/general/DSC_1040.jpg',
-                  'assets/img/gallery/general/DSC_1043.jpg',
-                  'assets/img/gallery/general/DSC_1046.jpg',
-                ],
-        };
-        _tabController?.dispose();
-        _tabController =
-            TabController(length: galleryImages.keys.length, vsync: this);
+    // ساخت مسیرهای کامل
+    setState(() {
+      galleryImages = {};
+      categoryPaths.forEach((category, path) {
+        final files = categoryFiles[category] ?? [];
+        galleryImages[category] = files.map((file) => '$path/$file').toList();
       });
-    } catch (e) {
-      print('Error loading gallery images: $e');
-      setState(() {
-        galleryImages = {
-          'محصولات': [
-            'assets/img/gallery/products/DSC_1052.jpg',
-            'assets/img/gallery/products/DSC_1054.jpg',
-            'assets/img/gallery/products/DSC_1068.jpg',
-          ],
-          'عمومی': [
-            'assets/img/gallery/general/DSC_1037.jpg',
-            'assets/img/gallery/general/DSC_1040.jpg',
-            'assets/img/gallery/general/DSC_1043.jpg',
-            'assets/img/gallery/general/DSC_1046.jpg',
-          ],
-        };
-        _tabController?.dispose();
-        _tabController =
-            TabController(length: galleryImages.keys.length, vsync: this);
-      });
-    }
-  }
+      isLoading = false;
+    });
 
-  @override
-  void dispose() {
-    _tabController?.dispose();
-    super.dispose();
+    debugPrint('Gallery images loaded successfully!');
+    galleryImages.forEach((category, images) {
+      debugPrint('$category: ${images.length} images');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('گالری تصاویر'),
-        bottom: _tabController != null && galleryImages.isNotEmpty
-            ? TabBar(
-                controller: _tabController,
-                tabs: galleryImages.keys.map((cat) => Tab(text: cat)).toList(),
-              )
-            : null,
+      appBar: AppBar(title: const Text('گالری تصاویر'), centerTitle: true),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // دسته‌بندی‌های افقی
+                _buildCategorySelector(),
+                const SizedBox(height: 16),
+                // Masonry Layout برای تصاویر
+                Expanded(child: _buildMasonryGrid()),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildCategorySelector() {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          final isSelected = selectedCategory == category;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedCategory = category;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.blue : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Text(
+                    category,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black87,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
-      body: _tabController != null && galleryImages.isNotEmpty
-          ? TabBarView(
-              controller: _tabController,
-              children: galleryImages.entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: entry.value.isEmpty
-                      ? const Center(
-                          child: Text('هیچ تصویری یافت نشد',
-                              style: TextStyle(fontSize: 16)),
-                        )
-                      : GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 1,
-                          ),
-                          itemCount: entry.value.length,
-                          itemBuilder: (context, index) {
-                            final imagePath = entry.value[index];
-                            return GestureDetector(
-                              onTap: () =>
-                                  _showFullScreenImage(context, imagePath),
-                              child: Hero(
-                                tag: imagePath,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: _buildImageWidget(imagePath),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                );
-              }).toList(),
-            )
-          : const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildMasonryGrid() {
+    final images = galleryImages[selectedCategory] ?? [];
+
+    if (images.isEmpty) {
+      return const Center(
+        child: Text(
+          'هیچ تصویری در این دسته یافت نشد',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: MasonryGridView.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          final imagePath = images[index];
+          return GestureDetector(
+            onTap: () => _showFullScreenImage(context, imagePath),
+            child: Hero(
+              tag: imagePath,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: _buildImageWidget(imagePath),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -154,7 +182,7 @@ class _GalleryPageState extends State<GalleryPage>
       imagePath,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
-        print('Error loading image: $imagePath, Error: $error');
+        debugPrint('Error loading image: $imagePath, Error: $error');
         return Container(
           color: Colors.grey[200],
           child: Column(
@@ -164,10 +192,7 @@ class _GalleryPageState extends State<GalleryPage>
               const SizedBox(height: 8),
               Text(
                 'خطا در بارگذاری',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -187,9 +212,7 @@ class _GalleryPageState extends State<GalleryPage>
           alignment: Alignment.center,
           child: Hero(
             tag: imagePath,
-            child: InteractiveViewer(
-              child: _buildImageWidget(imagePath),
-            ),
+            child: InteractiveViewer(child: _buildImageWidget(imagePath)),
           ),
         ),
       ),

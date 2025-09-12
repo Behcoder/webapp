@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:seify_app/pages/no_internet_page.dart';
 import 'package:seify_app/services/connectivity_service.dart';
 
@@ -13,14 +12,15 @@ class ConnectivityWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final connectivityService = ConnectivityService();
     return StreamBuilder(
-      stream: ConnectivityService.connectivityStream,
+      stream: connectivityService.connectivityStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.data == ConnectivityResult.none) {
+        if (snapshot.hasData && !snapshot.data!) {
           return const NoInternetPage();
         }
 
@@ -28,4 +28,4 @@ class ConnectivityWrapper extends StatelessWidget {
       },
     );
   }
-} 
+}

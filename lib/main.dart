@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const appVersion = '1.6.16';
+    const appVersion = '1.6.21+2';
     return MaterialApp(
       title: 'سیفی مارکت $appVersion',
       theme: ThemeData(
@@ -204,7 +204,7 @@ class CustomHeader extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -217,7 +217,7 @@ class CustomHeader extends StatelessWidget {
           child: Row(
             children: [
               Image.asset(
-                'assets/img/logo.png',
+                'assets/img/logo/logo.png',
                 height: 40,
                 fit: BoxFit.contain,
               ),
@@ -241,19 +241,6 @@ class CustomHeader extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryItem(String label, bool isSelected) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.blue : Colors.grey,
         ),
       ),
     );
@@ -757,7 +744,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -918,92 +905,6 @@ class _NewProductsState extends State<NewProducts> {
     }
   }
 
-  Widget _buildProductImage(Map product) {
-    // لیست تصاویر محلی برای استفاده به عنوان جایگزین
-    final List<String> fallbackImages = [
-      'assets/img/gallery/products/DSC_1052.jpg',
-      'assets/img/gallery/products/DSC_1054.jpg',
-      'assets/img/gallery/products/DSC_1068.jpg',
-    ];
-
-    // انتخاب تصویر تصادفی از لیست محلی
-    final randomIndex =
-        product['id'] != null ? (product['id'] % fallbackImages.length) : 0;
-    final fallbackImage = fallbackImages[randomIndex];
-
-    if (product['images'] != null && product['images'].isNotEmpty) {
-      return Image.network(
-        product['images'][0]['src'],
-        height: 120,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          print('Error loading product image: ${product['images'][0]['src']}');
-          // در صورت خطا، از تصویر محلی استفاده کن
-          return Image.asset(
-            fallbackImage,
-            height: 120,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                height: 120,
-                color: Colors.grey.shade200,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.broken_image,
-                        size: 32, color: Colors.grey.shade400),
-                    const SizedBox(height: 4),
-                    Text(
-                      'خطا در بارگذاری',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            height: 120,
-            color: Colors.grey.shade200,
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            ),
-          );
-        },
-      );
-    } else {
-      // اگر تصویر محصول وجود ندارد، از تصویر محلی استفاده کن
-      return Image.asset(
-        fallbackImage,
-        height: 120,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: 120,
-            color: Colors.grey.shade200,
-            child: Center(
-              child: Icon(Icons.image, size: 48, color: Colors.grey.shade400),
-            ),
-          );
-        },
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -1097,7 +998,7 @@ class _NewProductsState extends State<NewProducts> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -1297,7 +1198,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
         });
       }
     } catch (e) {
-      print('Error fetching subcategories: $e');
+      debugPrint('Error fetching subcategories: $e');
     }
   }
 
@@ -1413,8 +1314,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                               BorderRadius.circular(12),
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.1),
+                                              color: Colors.grey
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 8,
                                               offset: const Offset(0, 2),
                                             ),
@@ -1593,7 +1494,8 @@ class _ProductsPageState extends State<ProductsPage> {
         width: double.infinity,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          print('Error loading product image: ${product['images'][0]['src']}');
+          debugPrint(
+              'Error loading product image: ${product['images'][0]['src']}');
           // در صورت خطا، از تصویر محلی استفاده کن
           return Image.asset(
             fallbackImage,
@@ -1693,7 +1595,7 @@ class _ProductsPageState extends State<ProductsPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: Colors.grey.withValues(alpha: 0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -1763,7 +1665,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final TextEditingController _emailController = TextEditingController();
   List<Map<String, dynamic>> reviews = [];
   bool isLoading = false;
-  final int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -1967,7 +1868,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     );
                                   },
                                   errorBuilder: (context, error, stackTrace) {
-                                    print(
+                                    debugPrint(
                                         'Error loading detail image: ${image['src']}');
                                     return Container(
                                       height: 300,
@@ -2307,7 +2208,7 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
