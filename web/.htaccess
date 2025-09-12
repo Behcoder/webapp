@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /app/
+
+  # Serve existing files directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Redirect /app to /app/
+  RewriteRule ^app$ /app/ [R=302,L]
+
+  # SPA fallback for /app/*
+  RewriteRule ^ app/index.html [L]
+</IfModule>
+

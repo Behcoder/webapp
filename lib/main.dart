@@ -16,7 +16,7 @@ import 'pages/error_page.dart';
 import 'pages/gallery_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'services/connectivity_service.dart';
-import 'utils/url_utils.dart';
+// removed url_utils
 
 // ==========================================
 // [main.dart-main]
@@ -42,8 +42,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    const appVersion = '1.6.16';
     return MaterialApp(
-      title: 'سیفی مارکت 2',
+      title: 'سیفی مارکت $appVersion',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -725,7 +726,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
               final product =
                   products[index]; // Use original index as we are now bouncing
               final imageUrl = product['images']?.isNotEmpty == true
-                  ? UrlUtils.convertSeifyImageUrl(product['images'][0]['src'])
+                  ? product['images'][0]['src']
                   : null;
               final price = product['price'] != null
                   ? double.tryParse(product['price'])
@@ -770,7 +771,7 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16)),
                             child: Image.network(
-                              UrlUtils.convertSeifyImageUrl(imageUrl),
+                              imageUrl,
                               height: 120,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -932,7 +933,7 @@ class _NewProductsState extends State<NewProducts> {
 
     if (product['images'] != null && product['images'].isNotEmpty) {
       return Image.network(
-        UrlUtils.convertSeifyImageUrl(product['images'][0]['src']),
+        product['images'][0]['src'],
         height: 120,
         width: double.infinity,
         fit: BoxFit.cover,
@@ -1110,7 +1111,7 @@ class _NewProductsState extends State<NewProducts> {
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(16)),
                           child: Image.network(
-                            UrlUtils.convertSeifyImageUrl(imageUrl),
+                            imageUrl,
                             height: 120,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -1342,7 +1343,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                 leading: cat['image'] != null &&
                                         cat['image']['src'] != null
                                     ? Image.network(
-                                        UrlUtils.convertSeifyImageUrl(cat['image']['src']),
+                                        cat['image']['src'],
                                         width: 32,
                                         height: 32,
                                         fit: BoxFit.cover,
@@ -1431,7 +1432,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                                       cat['image']['src'] !=
                                                           null
                                                   ? Image.network(
-                                                      UrlUtils.convertSeifyImageUrl(cat['image']['src']),
+                                                      cat['image']['src'],
                                                       height: 100,
                                                       width: double.infinity,
                                                       fit: BoxFit.cover,
@@ -1579,14 +1580,15 @@ class _ProductsPageState extends State<ProductsPage> {
       'assets/img/gallery/products/DSC_1054.jpg',
       'assets/img/gallery/products/DSC_1068.jpg',
     ];
-    
+
     // انتخاب تصویر تصادفی از لیست محلی
-    final randomIndex = product['id'] != null ? (product['id'] % fallbackImages.length) : 0;
+    final randomIndex =
+        product['id'] != null ? (product['id'] % fallbackImages.length) : 0;
     final fallbackImage = fallbackImages[randomIndex];
 
     if (product['images'] != null && product['images'].isNotEmpty) {
       return Image.network(
-        UrlUtils.convertSeifyImageUrl(product['images'][0]['src']),
+        product['images'][0]['src'],
         height: 120,
         width: double.infinity,
         fit: BoxFit.cover,
@@ -1606,8 +1608,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.broken_image,
-                        size: 32,
-                        color: Colors.grey.shade400),
+                        size: 32, color: Colors.grey.shade400),
                     const SizedBox(height: 4),
                     Text(
                       'خطا در بارگذاری',
@@ -1630,7 +1631,8 @@ class _ProductsPageState extends State<ProductsPage> {
             child: Center(
               child: CircularProgressIndicator(
                 value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
                     : null,
               ),
             ),
@@ -1649,9 +1651,7 @@ class _ProductsPageState extends State<ProductsPage> {
             height: 120,
             color: Colors.grey.shade200,
             child: Center(
-              child: Icon(Icons.image,
-                  size: 48,
-                  color: Colors.grey.shade400),
+              child: Icon(Icons.image, size: 48, color: Colors.grey.shade400),
             ),
           );
         },
@@ -1948,7 +1948,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
-                                  UrlUtils.convertSeifyImageUrl(image['src']),
+                                  image['src'],
                                   fit: BoxFit.cover,
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
@@ -2320,7 +2320,7 @@ class _ParentCategoryGridState extends State<ParentCategoryGrid> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        UrlUtils.convertSeifyImageUrl(imageUrl),
+                        imageUrl,
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,

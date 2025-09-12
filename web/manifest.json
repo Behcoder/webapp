@@ -1,7 +1,8 @@
 {
     "name": "seify_app",
     "short_name": "seify_app",
-    "start_url": ".",
+    "start_url": "/app/",
+    "scope": "/app/",
     "display": "standalone",
     "background_color": "#hexcode",
     "theme_color": "#hexcode",
