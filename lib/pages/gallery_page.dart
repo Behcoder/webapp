@@ -1,174 +1,177 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
-
   @override
   State<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage> {
-  Map<String, List<String>> galleryImages = {};
-  String selectedCategory = 'عمومی';
-  bool isLoading = true;
-
-  // دسته‌بندی‌ها به ترتیب الفبا (عمومی همیشه اول)
-  final List<String> categories = [
-    'عمومی',
+class _GalleryPageState extends State<GalleryPage>
+    with TickerProviderStateMixin {
+  TabController? _tabController;
+  // slug -> list of asset paths
+  Map<String, List<String>> _imagesByCategory = {};
+  // ترتیب و برچسب‌های فارسی
+  static const Map<String, String> _faLabel = {
+    'general': 'عمومی',
+    'API': 'API',
+    'galvanized': 'گالوانیزه',
+    'gas': 'گازی',
+    'spiral': 'اسپیرال',
+    'scaffold': 'داربستی',
+    'manismann': 'مانیسمان',
+    'gal': 'گال' // اگر در پروژه‌تان استفاده می‌شود
+  };
+  static const List<String> _preferredOrder = [
+    'general',
     'API',
-    'اسپیرال',
-    'گازی',
-    'گالوانیزه',
-    'داربستی',
-    'مانیسمان',
+    'galvanized',
+    'gas',
+    'spiral',
+    'scaffold',
+    'manismann',
+    'gal'
+  ];
+  static const List<String> _allowedExt = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+    '.JPG',
+    '.JPEG',
+    '.PNG',
+    '.WEBP'
   ];
 
   @override
   void initState() {
     super.initState();
-    _loadGalleryImages();
+    _loadAssets();
   }
 
-  Future<void> _loadGalleryImages() async {
-    // تعریف مسیرهای پوشه‌ها
-    final Map<String, String> categoryPaths = {
-      'عمومی': 'assets/img/gallery/general',
-      'API': 'assets/img/gallery/API',
-      'اسپیرال': 'assets/img/gallery/spiral',
-      'گازی': 'assets/img/gallery/gas',
-      'گالوانیزه': 'assets/img/gallery/galvanized',
-      'داربستی': 'assets/img/gallery/scaffold',
-      'مانیسمان': 'assets/img/gallery/manismann',
-    };
+  Future<void> _loadAssets() async {
+    try {
+      // کل AssetManifest را بخوان
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifest = json.decode(manifestContent);
 
-    // تعریف فایل‌های موجود در هر پوشه
-    final Map<String, List<String>> categoryFiles = {
-      'عمومی': [
-        '1.webp',
-        '2.webp',
-        '1001.png',
-        '1002.png',
-        '1101.jpg',
-        '1102.jpg',
-      ],
-      'API': ['DSC_1052.jpg'],
-      'اسپیرال': ['DSC_1046.jpg'],
-      'گازی': ['DSC_1037.jpg'],
-      'گالوانیزه': ['DSC_1043.jpg'],
-      'داربستی': [],
-      'مانیسمان': ['DSC_1040.jpg'],
-    };
-
-    // ساخت مسیرهای کامل
-    setState(() {
-      galleryImages = {};
-      categoryPaths.forEach((category, path) {
-        final files = categoryFiles[category] ?? [];
-        galleryImages[category] = files.map((file) => '$path/$file').toList();
+      // فقط مسیرهای داخل assets/img/gallery/ و با پسوند مجاز
+      final allGalleryAssets = manifest.keys.where((k) {
+        if (!k.startsWith('assets/img/gallery/')) return false;
+        return _allowedExt.any((ext) => k.endsWith(ext));
       });
-      isLoading = false;
-    });
 
-    debugPrint('Gallery images loaded successfully!');
-    galleryImages.forEach((category, images) {
-      debugPrint('$category: ${images.length} images');
-    });
+      // گروه‌بندی بر اساس نام دسته (اولین قطعه بعد از gallery/)
+      final Map<String, List<String>> grouped = {};
+      for (final path in allGalleryAssets) {
+        final rest = path.substring('assets/img/gallery/'.length);
+        final slash = rest.indexOf('/');
+        if (slash <= 0) continue;
+        final slug = rest.substring(0, slash);
+        grouped.putIfAbsent(slug, () => []).add(path);
+      }
+
+      // مرتب‌سازی هر لیست برای نمایش پایدار
+      for (final e in grouped.entries) {
+        e.value.sort();
+      }
+
+      // اگر چیزی پیدا نشد، خطا بده تا سریع متوجه شویم
+      if (grouped.isEmpty) {
+        throw Exception('No gallery assets found under assets/img/gallery/');
+      }
+
+      // مرتب‌سازی کلیدها مطابق ترتیب دلخواه، سپس بقیه
+      final orderedKeys = [
+        ..._preferredOrder.where(grouped.keys.toSet().contains),
+        ...grouped.keys.where((k) => !_preferredOrder.contains(k)).toList()
+          ..sort(),
+      ];
+
+      final Map<String, List<String>> ordered = {
+        for (final k in orderedKeys) k: grouped[k]!,
+      };
+
+      if (!mounted) return;
+      setState(() {
+        _imagesByCategory = ordered;
+        _tabController?.dispose();
+        _tabController =
+            TabController(length: _imagesByCategory.length, vsync: this);
+      });
+    } catch (e) {
+      debugPrint('Error loading gallery images: $e');
+      if (!mounted) return;
+      setState(() {
+        _imagesByCategory = {
+          'general': const [], // اجازه می‌دهد صفحه بالا بیاید، ولی خالی
+        };
+        _tabController?.dispose();
+        _tabController =
+            TabController(length: _imagesByCategory.length, vsync: this);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final keys = _imagesByCategory.keys.toList();
     return Scaffold(
-      appBar: AppBar(title: const Text('گالری تصاویر'), centerTitle: true),
-      body: isLoading
+      appBar: AppBar(
+        title: const Text('گالری تصاویر'),
+        bottom: _tabController == null
+            ? null
+            : TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                tabs: [
+                  for (final k in keys)
+                    Tab(text: _faLabel[k] ?? k), // لیبل فارسی اگر وجود داشت
+                ],
+              ),
+      ),
+      body: _tabController == null
           ? const Center(child: CircularProgressIndicator())
-          : Column(
+          : TabBarView(
+              controller: _tabController,
               children: [
-                // دسته‌بندی‌های افقی
-                _buildCategorySelector(),
-                const SizedBox(height: 16),
-                // Masonry Layout برای تصاویر
-                Expanded(child: _buildMasonryGrid()),
+                for (final k in keys) _buildGrid(_imagesByCategory[k]!),
               ],
             ),
     );
   }
 
-  Widget _buildCategorySelector() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = selectedCategory == category;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedCategory = category;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.blue : Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Center(
-                  child: Text(
-                    category,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildMasonryGrid() {
-    final images = galleryImages[selectedCategory] ?? [];
-
-    if (images.isEmpty) {
+  Widget _buildGrid(List<String> paths) {
+    if (paths.isEmpty) {
       return const Center(
-        child: Text(
-          'هیچ تصویری در این دسته یافت نشد',
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-        ),
-      );
+          child: Text('هیچ تصویری یافت نشد', style: TextStyle(fontSize: 16)));
     }
-
     return Padding(
-      padding: const EdgeInsets.all(16),
-      child: MasonryGridView.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        itemCount: images.length,
-        itemBuilder: (context, index) {
-          final imagePath = images[index];
+      padding: const EdgeInsets.all(12),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: paths.length,
+        itemBuilder: (context, i) {
+          final p = paths[i];
           return GestureDetector(
-            onTap: () => _showFullScreenImage(context, imagePath),
+            onTap: () => _showFullScreen(context, p),
             child: Hero(
-              tag: imagePath,
+              tag: p,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: _buildImageWidget(imagePath),
+                child: _imageWidget(p),
               ),
             ),
           );
@@ -177,12 +180,13 @@ class _GalleryPageState extends State<GalleryPage> {
     );
   }
 
-  Widget _buildImageWidget(String imagePath) {
+  Widget _imageWidget(String assetPath) {
     return Image.asset(
-      imagePath,
+      assetPath,
       fit: BoxFit.cover,
+      // وقتی Asset رجیستر نشده/مسیر اشتباه باشد:
       errorBuilder: (context, error, stackTrace) {
-        debugPrint('Error loading image: $imagePath, Error: $error');
+        debugPrint('Error loading image: $assetPath -> $error');
         return Container(
           color: Colors.grey[200],
           child: Column(
@@ -190,11 +194,9 @@ class _GalleryPageState extends State<GalleryPage> {
             children: [
               const Icon(Icons.broken_image, size: 40, color: Colors.grey),
               const SizedBox(height: 8),
-              Text(
-                'خطا در بارگذاری',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
+              Text('خطا در بارگذاری',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  textAlign: TextAlign.center),
             ],
           ),
         );
@@ -202,18 +204,27 @@ class _GalleryPageState extends State<GalleryPage> {
     );
   }
 
-  void _showFullScreenImage(BuildContext context, String imagePath) {
+  void _showFullScreen(BuildContext context, String assetPath) {
     showDialog(
       context: context,
-      builder: (context) => GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Container(
-          color: Colors.black,
-          alignment: Alignment.center,
-          child: Hero(
-            tag: imagePath,
-            child: InteractiveViewer(child: _buildImageWidget(imagePath)),
-          ),
+      builder: (ctx) => Dialog(
+        insetPadding: const EdgeInsets.all(12),
+        backgroundColor: Colors.black,
+        child: Stack(
+          children: [
+            Hero(
+              tag: assetPath,
+              child: InteractiveViewer(child: _imageWidget(assetPath)),
+            ),
+            Positioned(
+              top: 8,
+              left: 8,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          ],
         ),
       ),
     );

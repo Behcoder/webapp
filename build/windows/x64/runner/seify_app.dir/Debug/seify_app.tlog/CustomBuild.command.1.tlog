@@ -1,0 +1,10 @@
+^D:\BEB_APP-DEV\BEB_APP-DEV-Y04M06D16\WINDOWS\RUNNER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/beb_app-dev/beb_app-dev-Y04M06D16/windows -BD:/beb_app-dev/beb_app-dev-Y04M06D16/build/windows/x64 --check-stamp-file D:/beb_app-dev/beb_app-dev-Y04M06D16/build/windows/x64/runner/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

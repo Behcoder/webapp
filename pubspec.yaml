@@ -41,10 +41,10 @@ dependencies:
   mailer: ^6.0.1
   shared_preferences: ^2.2.2
   intl: ^0.20.2
-  connectivity_plus: ^6.0.3
+  connectivity_plus: ^7.0.0
   lottie: ^3.1.2
-  package_info_plus: ^8.0.0
-  flutter_dotenv: ^5.1.0
+  package_info_plus: ^9.0.0
+  flutter_dotenv: ^6.0.0
   flutter_staggered_grid_view: ^0.7.0
 
   # The following adds the Cupertino Icons font to your application.
@@ -59,8 +59,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
 
 # Flutter Launcher Icons configuration
 flutter_launcher_icons:
