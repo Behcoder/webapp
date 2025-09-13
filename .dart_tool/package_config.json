@@ -539,7 +539,7 @@
       "name": "seify_app",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.9"
     }
   ],
   "generator": "pub",

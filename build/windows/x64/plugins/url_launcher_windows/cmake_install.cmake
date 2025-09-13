@@ -1,4 +1,4 @@
-# Install script for directory: D:/beb_app-dev/beb_app-dev-Y04M06D16/windows/flutter/ephemeral/.plugin_symlinks/url_launcher_windows/windows
+# Install script for directory: D:/beb_app-dev/beb_app-dev-Y04M06D21/windows/flutter/ephemeral/.plugin_symlinks/url_launcher_windows/windows
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,6 +35,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/beb_app-dev/beb_app-dev-Y04M06D16/build/windows/x64/plugins/url_launcher_windows/install_local_manifest.txt"
+  file(WRITE "D:/beb_app-dev/beb_app-dev-Y04M06D21/build/windows/x64/plugins/url_launcher_windows/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

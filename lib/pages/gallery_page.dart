@@ -4,208 +4,169 @@ import 'package:flutter/services.dart' show rootBundle;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
+
   @override
   State<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage> with TickerProviderStateMixin {
-  TabController? _tabController;
-  Map<String, List<String>> _imagesByCategory = {};
-
-  // برچسب‌های فارسی اختیاری برای اسلاگ‌ها
-  static const Map<String, String> _faLabel = {
-    'general': 'عمومی',
-    'API': 'API',
-    'galvanized': 'گالوانیزه',
-    'gas': 'گازی',
-    'spiral': 'اسپیراال',
-    'manismann': 'مانیسمان',
-    'scaffold': 'اسکافولد',
-    'etc': 'متفرقه',
-  };
-
-  // ترتیب پیشنهادی تب‌ها؛ بقیه الفبایی می‌آیند
-  static const List<String> _preferredOrder = [
-    'general', 'API', 'galvanized', 'gas', 'spiral', 'manismann', 'scaffold', 'etc'
-  ];
-
-  // پسوندهای مجاز
-  static const List<String> _allowedExt = [
-    '.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP'
-  ];
+class _GalleryPageState extends State<GalleryPage> {
+  List<String> _imagePaths = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadAssets();
+    _loadGalleryImages();
   }
 
-  Future<void> _loadAssets() async {
+  /// همهٔ تصاویر داخل assets/img/gallery/ را از AssetManifest.json می‌خواند
+  Future<void> _loadGalleryImages() async {
     try {
-      // تمام دارایی‌های رجیسترشده در pubspec.yaml
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifest = json.decode(manifestContent);
+      final manifestJson = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifest = json.decode(manifestJson);
 
-      // لاگ‌های دیباگ (می‌توانی بعد از درست شدن حذف‌شان کنی)
-      debugPrint('Total assets in manifest: ${manifest.keys.length}');
-      final galleryKeys = manifest.keys.where((k) => k.startsWith('assets/gallery/')).toList();
-      debugPrint('Gallery assets count: ${galleryKeys.length}');
-      if (galleryKeys.isNotEmpty) {
-        debugPrint('First 10 gallery assets: ${galleryKeys.take(10).toList()}');
-      }
+      const prefix = 'assets/img/gallery/';
+      final images = manifest.keys
+          .where((p) =>
+              p.startsWith(prefix) &&
+              (p.endsWith('.png') ||
+               p.endsWith('.jpg') ||
+               p.endsWith('.jpeg') ||
+               p.endsWith('.webp')))
+          .toList()
+        ..sort();
 
-      // فقط مسیرهایی که زیر assets/gallery/ هستند و پسوند مجاز دارند
-      final allGalleryAssets = manifest.keys.where((k) {
-        if (!k.startsWith('assets/gallery/')) return false;
-        return _allowedExt.any((ext) => k.endsWith(ext));
+      setState(() {
+        _imagePaths = images;
+        _isLoading = false;
       });
 
-      // گروه‌بندی بر اساس نام دسته: assets/gallery/<category>/<file>
-      final Map<String, List<String>> grouped = {};
-      for (final path in allGalleryAssets) {
-        final rest = path.substring('assets/gallery/'.length);
-        final slash = rest.indexOf('/');
-        if (slash <= 0) continue;
-        final slug = rest.substring(0, slash);
-        grouped.putIfAbsent(slug, () => []).add(path);
-      }
-
-      // مرتب‌سازی آیتم‌های هر دسته برای نمایش پایدار
-      for (final e in grouped.entries) {
-        e.value.sort();
-      }
-
-      if (grouped.isEmpty) {
-        // هیچ تصویری پیدا نشد
-        if (!mounted) return;
-        setState(() {
-          _imagesByCategory = {};
-          _tabController?.dispose();
-          _tabController = null;
-        });
-        return;
-      }
-
-      // ترتیب‌دهی تب‌ها
-      final orderedKeys = [
-        ..._preferredOrder.where(grouped.keys.toSet().contains),
-        ...grouped.keys.where((k) => !_preferredOrder.contains(k)).toList()..sort(),
-      ];
-
-      if (!mounted) return;
+      // برای دیباگ: ببین چه چیزهایی پیدا شده
+      // debugPrint('FOUND: ${images.length} -> $images');
+    } catch (e) {
+      debugPrint('Failed to read AssetManifest: $e');
       setState(() {
-        _imagesByCategory = {for (final k in orderedKeys) k: grouped[k]!};
-        _tabController?.dispose();
-        _tabController = TabController(length: _imagesByCategory.length, vsync: this);
-      });
-    } catch (e, st) {
-      debugPrint('Error loading gallery images: $e\n$st');
-      if (!mounted) return;
-      setState(() {
-        _imagesByCategory = {};
-        _tabController?.dispose();
-        _tabController = null;
+        _imagePaths = [];
+        _isLoading = false;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _tabController?.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final keys = _imagesByCategory.keys.toList();
-
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('گالری تصاویر'),
-          bottom: (_tabController == null || keys.isEmpty)
-              ? null
-              : TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabs: [for (final k in keys) Tab(text: _faLabel[k] ?? k)],
+    final body = _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _imagePaths.isEmpty
+            ? const _EmptyState()
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: _imagePaths.length,
+                  itemBuilder: (context, index) {
+                    final imagePath = _imagePaths[index];
+                    return GestureDetector(
+                      onTap: () => _showImageDialog(context, imagePath),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            imagePath,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Error loading: $imagePath -> $error');
+                              return Container(
+                                color: Colors.grey[300],
+                                child: const Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                  size: 40,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-        ),
-        body: _tabController == null
-            ? const _EmptyView()
-            : TabBarView(
-                controller: _tabController,
-                children: [for (final k in keys) _buildGrid(_imagesByCategory[k]!)],
-              ),
-      ),
-    );
-  }
+              );
 
-  Widget _buildGrid(List<String> paths) {
-    if (paths.isEmpty) {
-      return const _EmptyView();
-    }
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8,
-        ),
-        itemCount: paths.length,
-        itemBuilder: (context, i) {
-          final p = paths[i];
-          return GestureDetector(
-            onTap: () => _showFullScreen(context, p),
-            child: Hero(
-              tag: p,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: _imageWidget(p),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _imageWidget(String assetPath) {
-    return Image.asset(
-      assetPath,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        debugPrint('Error loading image: $assetPath -> $error');
-        return Container(
-          color: Colors.grey[200],
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.broken_image, size: 40),
-              SizedBox(height: 8),
-              Text('خطا در بارگذاری', style: TextStyle(fontSize: 12)),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('گالری تصاویر'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'به‌روزرسانی',
+            onPressed: () async {
+              setState(() => _isLoading = true);
+              await _loadGalleryImages();
+            },
+            icon: const Icon(Icons.refresh),
           ),
-        );
-      },
+        ],
+      ),
+      body: body,
     );
   }
 
-  void _showFullScreen(BuildContext context, String assetPath) {
+  void _showImageDialog(BuildContext context, String imagePath) {
     showDialog(
       context: context,
-      builder: (ctx) => Dialog(
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.all(12),
-        backgroundColor: Colors.black,
         child: Stack(
           children: [
-            Hero(tag: assetPath, child: InteractiveViewer(child: _imageWidget(assetPath))),
+            Center(
+              child: InteractiveViewer(
+                minScale: 0.8,
+                maxScale: 5,
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[800],
+                      padding: const EdgeInsets.all(16),
+                      child: const Center(
+                        child: Text(
+                          'خطا در بارگذاری تصویر',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             Positioned(
-              top: 8,
-              left: 8,
+              top: 40,
+              right: 20,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.of(ctx).pop(),
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black.withOpacity(0.5),
+                ),
               ),
             ),
           ],
@@ -215,12 +176,16 @@ class _GalleryPageState extends State<GalleryPage> with TickerProviderStateMixin
   }
 }
 
-class _EmptyView extends StatelessWidget {
-  const _EmptyView();
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('هیچ تصویری یافت نشد'));
-    // اگر دوست داری لودر بگذاری، می‌توانی اینجا تغییر بدهی.
+    return const Center(
+      child: Text(
+        'هیچ تصویری یافت نشد',
+        style: TextStyle(fontSize: 18),
+      ),
+    );
   }
 }

@@ -1,42 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_windows.cpp">
+    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\messages.g.cpp">
+    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\messages.g.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\system_apis.cpp">
+    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\system_apis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_plugin.cpp">
+    <ClCompile Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include\url_launcher_windows\url_launcher_windows.h">
+    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include\url_launcher_windows\url_launcher_windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\messages.g.h">
+    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\messages.g.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\system_apis.h">
+    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\system_apis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_plugin.h">
+    <ClInclude Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\url_launcher_plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\beb_app-dev\beb_app-dev-Y04M06D16\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\CMakeLists.txt" />
+    <CustomBuild Include="D:\beb_app-dev\beb_app-dev-Y04M06D21\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{24D6B119-1784-3CCB-A28A-75E1F8496ED3}</UniqueIdentifier>
+      <UniqueIdentifier>{DC24B70E-D6C8-38D1-8377-43DD51D16DD5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4187CF4E-B431-32A3-81C1-6394B13845AC}</UniqueIdentifier>
+      <UniqueIdentifier>{44063E8E-CD4D-3F9D-9618-26548C067F91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

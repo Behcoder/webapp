@@ -54,13 +54,14 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    # صفحهٔ اصلی از این‌ها استفاده می‌کند:
-    - assets/img/         # شامل banner/ و logo/ و gallery/ و ...
-    # سایر دارایی‌ها
-    - assets/fonts/
-    - assets/icon/
-    - assets/animations/
-    - assets/config.env
+    - assets/img/banner/1.png
+    - assets/img/banner/2.png
+    - assets/img/banner/3.png
+    - assets/img/gallery/1001.png
+    - assets/img/gallery/1101.jpg
+    - assets/img/gallery/2.webp
+    - assets/img/logo/logo.png
+
 
   fonts:
     - family: Vazirmatn
