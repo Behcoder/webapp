@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -6,41 +8,30 @@ class GalleryPage extends StatefulWidget {
   State<GalleryPage> createState() => _GalleryPageState();
 }
 
-class _GalleryPageState extends State<GalleryPage>
-    with TickerProviderStateMixin {
+class _GalleryPageState extends State<GalleryPage> with TickerProviderStateMixin {
   TabController? _tabController;
-  // slug -> list of asset paths
   Map<String, List<String>> _imagesByCategory = {};
-  // ترتیب و برچسب‌های فارسی
+
+  // برچسب‌های فارسی اختیاری برای اسلاگ‌ها
   static const Map<String, String> _faLabel = {
     'general': 'عمومی',
     'API': 'API',
     'galvanized': 'گالوانیزه',
     'gas': 'گازی',
-    'spiral': 'اسپیرال',
-    'scaffold': 'داربستی',
+    'spiral': 'اسپیراال',
     'manismann': 'مانیسمان',
-    'gal': 'گال' // اگر در پروژه‌تان استفاده می‌شود
+    'scaffold': 'اسکافولد',
+    'etc': 'متفرقه',
   };
+
+  // ترتیب پیشنهادی تب‌ها؛ بقیه الفبایی می‌آیند
   static const List<String> _preferredOrder = [
-    'general',
-    'API',
-    'galvanized',
-    'gas',
-    'spiral',
-    'scaffold',
-    'manismann',
-    'gal'
+    'general', 'API', 'galvanized', 'gas', 'spiral', 'manismann', 'scaffold', 'etc'
   ];
+
+  // پسوندهای مجاز
   static const List<String> _allowedExt = [
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.webp',
-    '.JPG',
-    '.JPEG',
-    '.PNG',
-    '.WEBP'
+    '.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP'
   ];
 
   @override
@@ -51,62 +42,69 @@ class _GalleryPageState extends State<GalleryPage>
 
   Future<void> _loadAssets() async {
     try {
-      // استفاده از لیست ثابت بر اساس فایل‌های موجود
-      final Map<String, List<String>> grouped = {
-        'general': [
-          'assets/img/gallery/general/1.webp',
-          'assets/img/gallery/general/1001.png',
-          'assets/img/gallery/general/1002.png',
-          'assets/img/gallery/general/1101.jpg',
-          'assets/img/gallery/general/1102.jpg',
-          'assets/img/gallery/general/2.webp',
-          'assets/img/gallery/general/test.webp',
-        ],
-        'API': [
-          'assets/img/gallery/API/DSC_1052.jpg',
-        ],
-        'galvanized': [
-          'assets/img/gallery/galvanized/DSC_1043.jpg',
-        ],
-        'gas': [
-          'assets/img/gallery/gas/DSC_1037.jpg',
-        ],
-        'manismann': [
-          'assets/img/gallery/manismann/DSC_1040.jpg',
-        ],
-        'spiral': [
-          'assets/img/gallery/spiral/DSC_1046.jpg',
-        ],
-      };
+      // تمام دارایی‌های رجیسترشده در pubspec.yaml
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifest = json.decode(manifestContent);
 
-      // مرتب‌سازی کلیدها مطابق ترتیب دلخواه، سپس بقیه
+      // لاگ‌های دیباگ (می‌توانی بعد از درست شدن حذف‌شان کنی)
+      debugPrint('Total assets in manifest: ${manifest.keys.length}');
+      final galleryKeys = manifest.keys.where((k) => k.startsWith('assets/gallery/')).toList();
+      debugPrint('Gallery assets count: ${galleryKeys.length}');
+      if (galleryKeys.isNotEmpty) {
+        debugPrint('First 10 gallery assets: ${galleryKeys.take(10).toList()}');
+      }
+
+      // فقط مسیرهایی که زیر assets/gallery/ هستند و پسوند مجاز دارند
+      final allGalleryAssets = manifest.keys.where((k) {
+        if (!k.startsWith('assets/gallery/')) return false;
+        return _allowedExt.any((ext) => k.endsWith(ext));
+      });
+
+      // گروه‌بندی بر اساس نام دسته: assets/gallery/<category>/<file>
+      final Map<String, List<String>> grouped = {};
+      for (final path in allGalleryAssets) {
+        final rest = path.substring('assets/gallery/'.length);
+        final slash = rest.indexOf('/');
+        if (slash <= 0) continue;
+        final slug = rest.substring(0, slash);
+        grouped.putIfAbsent(slug, () => []).add(path);
+      }
+
+      // مرتب‌سازی آیتم‌های هر دسته برای نمایش پایدار
+      for (final e in grouped.entries) {
+        e.value.sort();
+      }
+
+      if (grouped.isEmpty) {
+        // هیچ تصویری پیدا نشد
+        if (!mounted) return;
+        setState(() {
+          _imagesByCategory = {};
+          _tabController?.dispose();
+          _tabController = null;
+        });
+        return;
+      }
+
+      // ترتیب‌دهی تب‌ها
       final orderedKeys = [
         ..._preferredOrder.where(grouped.keys.toSet().contains),
-        ...grouped.keys.where((k) => !_preferredOrder.contains(k)).toList()
-          ..sort(),
+        ...grouped.keys.where((k) => !_preferredOrder.contains(k)).toList()..sort(),
       ];
 
-      final Map<String, List<String>> ordered = {
-        for (final k in orderedKeys) k: grouped[k]!,
-      };
-
       if (!mounted) return;
       setState(() {
-        _imagesByCategory = ordered;
+        _imagesByCategory = {for (final k in orderedKeys) k: grouped[k]!};
         _tabController?.dispose();
-        _tabController =
-            TabController(length: _imagesByCategory.length, vsync: this);
+        _tabController = TabController(length: _imagesByCategory.length, vsync: this);
       });
-    } catch (e) {
-      debugPrint('Error loading gallery images: $e');
+    } catch (e, st) {
+      debugPrint('Error loading gallery images: $e\n$st');
       if (!mounted) return;
       setState(() {
-        _imagesByCategory = {
-          'general': const [], // اجازه می‌دهد صفحه بالا بیاید، ولی خالی
-        };
+        _imagesByCategory = {};
         _tabController?.dispose();
-        _tabController =
-            TabController(length: _imagesByCategory.length, vsync: this);
+        _tabController = null;
       });
     }
   }
@@ -120,43 +118,39 @@ class _GalleryPageState extends State<GalleryPage>
   @override
   Widget build(BuildContext context) {
     final keys = _imagesByCategory.keys.toList();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('گالری تصاویر'),
-        bottom: _tabController == null
-            ? null
-            : TabBar(
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('گالری تصاویر'),
+          bottom: (_tabController == null || keys.isEmpty)
+              ? null
+              : TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabs: [for (final k in keys) Tab(text: _faLabel[k] ?? k)],
+                ),
+        ),
+        body: _tabController == null
+            ? const _EmptyView()
+            : TabBarView(
                 controller: _tabController,
-                isScrollable: true,
-                tabs: [
-                  for (final k in keys)
-                    Tab(text: _faLabel[k] ?? k), // لیبل فارسی اگر وجود داشت
-                ],
+                children: [for (final k in keys) _buildGrid(_imagesByCategory[k]!)],
               ),
       ),
-      body: _tabController == null
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                for (final k in keys) _buildGrid(_imagesByCategory[k]!),
-              ],
-            ),
     );
   }
 
   Widget _buildGrid(List<String> paths) {
     if (paths.isEmpty) {
-      return const Center(
-          child: Text('هیچ تصویری یافت نشد', style: TextStyle(fontSize: 16)));
+      return const _EmptyView();
     }
     return Padding(
       padding: const EdgeInsets.all(12),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
+          crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8,
         ),
         itemCount: paths.length,
         itemBuilder: (context, i) {
@@ -180,19 +174,16 @@ class _GalleryPageState extends State<GalleryPage>
     return Image.asset(
       assetPath,
       fit: BoxFit.cover,
-      // وقتی Asset رجیستر نشده/مسیر اشتباه باشد:
       errorBuilder: (context, error, stackTrace) {
         debugPrint('Error loading image: $assetPath -> $error');
         return Container(
           color: Colors.grey[200],
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-              const SizedBox(height: 8),
-              Text('خطا در بارگذاری',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  textAlign: TextAlign.center),
+            children: const [
+              Icon(Icons.broken_image, size: 40),
+              SizedBox(height: 8),
+              Text('خطا در بارگذاری', style: TextStyle(fontSize: 12)),
             ],
           ),
         );
@@ -208,10 +199,7 @@ class _GalleryPageState extends State<GalleryPage>
         backgroundColor: Colors.black,
         child: Stack(
           children: [
-            Hero(
-              tag: assetPath,
-              child: InteractiveViewer(child: _imageWidget(assetPath)),
-            ),
+            Hero(tag: assetPath, child: InteractiveViewer(child: _imageWidget(assetPath))),
             Positioned(
               top: 8,
               left: 8,
@@ -224,5 +212,15 @@ class _GalleryPageState extends State<GalleryPage>
         ),
       ),
     );
+  }
+}
+
+class _EmptyView extends StatelessWidget {
+  const _EmptyView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('هیچ تصویری یافت نشد'));
+    // اگر دوست داری لودر بگذاری، می‌توانی اینجا تغییر بدهی.
   }
 }

@@ -25,7 +25,11 @@ import 'services/connectivity_service.dart';
 // وابستگی‌ها: MyApp
 // ==========================================
 void main() async {
-  await dotenv.load(fileName: "assets/config.env");
+  try {
+    await dotenv.load(fileName: "assets/config.env");
+  } catch (e) {
+    debugPrint('Warning: Could not load config.env file: $e');
+  }
   runApp(const MyApp());
 }
 
