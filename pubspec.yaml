@@ -53,15 +53,16 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+ 
   assets:
-    - assets/img/banner/1.png
-    - assets/img/banner/2.png
-    - assets/img/banner/3.png
-    - assets/img/gallery/1001.png
-    - assets/img/gallery/1101.jpg
-    - assets/img/gallery/2.webp
-    - assets/img/logo/logo.png
-
+    - assets/img/gallery/fitting/
+    - assets/img/gallery/galvanized/
+    - assets/img/gallery/gas/
+    - assets/img/gallery/mannesmann/
+    - assets/img/gallery/scaffold/
+    - assets/img/gallery/spiral/
+    - assets/img/banner/
+    - assets/img/logo/
 
   fonts:
     - family: Vazirmatn

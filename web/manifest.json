@@ -1,14 +1,16 @@
 {
-    "name": "seify_app",
-    "short_name": "seify_app",
-    "start_url": "/app/",
-    "scope": "/app/",
+    "name": "سیفی مارکت - گالری محصولات",
+    "short_name": "سیفی مارکت",
+    "start_url": "/",
+    "scope": "/",
     "display": "standalone",
-    "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "A new Flutter project.",
+    "background_color": "#1976d2",
+    "theme_color": "#1976d2",
+    "description": "سیفی مارکت - اپلیکیشن فروشگاه آنلاین با قابلیت مشاهده محصولات، دسته‌بندی‌ها و گالری تصاویر",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "lang": "fa",
+    "dir": "rtl",
     "icons": [
         {
             "src": "icons/Icon-192.png",
