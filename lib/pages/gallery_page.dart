@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/gallery_categories.dart';
+import '../main.dart'; // برای دسترسی به Footer
 
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -111,6 +112,7 @@ class _GalleryPageState extends State<GalleryPage> {
                 Expanded(child: _buildImageGrid()),
               ],
             ),
+      bottomNavigationBar: const Footer(), // اضافه کردن Footer مانند سایر صفحات
     );
   }
 

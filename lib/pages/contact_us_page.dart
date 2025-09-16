@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import '../main.dart'; // برای دسترسی به Footer
 
 class ContactUsPage extends StatefulWidget {
   const ContactUsPage({super.key});
@@ -95,59 +96,41 @@ class _ContactUsPageState extends State<ContactUsPage> {
           children: [
             const Text(
               'راه‌های ارتباطی',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildContactItem(
-              Icons.email,
-              'ایمیل',
-              'info@seify.ir',
-              () async {
-                final Uri emailLaunchUri = Uri(
-                  scheme: 'mailto',
-                  path: 'info@seify.ir',
-                );
-                if (await canLaunchUrl(emailLaunchUri)) {
-                  await launchUrl(emailLaunchUri);
-                }
-              },
-            ),
-            _buildPhoneNumbers(
-              Icons.phone,
-              'تلفن ثابت',
-              [
-                {'display': '۰۲۱-۶۶۳۱۳۶۵۱', 'number': '02166313651'},
-                {'display': '۰۲۱-۶۶۳۱۳۶۵۲', 'number': '02166313652'},
-                {'display': '۰۲۱-۶۶۳۱۳۶۵۳', 'number': '02166313653'},
-              ],
-            ),
-            _buildPhoneNumbers(
-              Icons.phone_android,
-              'تلفن همراه',
-              [
-                {'display': '۰۹۳۰-۱۵۷۴۹۰۱', 'number': '09301574901'},
-              ],
-            ),
+            _buildPhoneNumbers(Icons.phone, 'تلفن ثابت', [
+              {'display': '۰۲۱-۶۶۳۱۳۶۵۱', 'number': '02166313651'},
+              {'display': '۰۲۱-۶۶۳۱۳۶۵۲', 'number': '02166313652'},
+              {'display': '۰۲۱-۶۶۳۱۳۶۵۳', 'number': '02166313653'},
+            ]),
+            _buildPhoneNumbers(Icons.phone_android, 'تلفن همراه', [
+              {'display': '۰۹۱۲-۱۵۷۴۹۰۱', 'number': '09121574901'},
+            ]),
+            _buildContactItem(Icons.email, 'ایمیل', 'info@seify.ir', () async {
+              final Uri emailLaunchUri = Uri(
+                scheme: 'mailto',
+                path: 'info@seify.ir',
+              );
+              if (await canLaunchUrl(emailLaunchUri)) {
+                await launchUrl(emailLaunchUri);
+              }
+            }),
             _buildContactItem(
               Icons.location_on,
               'آدرس',
               'بازار آهن شاد آباد، پاییزان',
               () async {
                 // باز کردن نقشه
-                const url = 'https://maps.google.com/?q=35.6892,51.3890'; // مختصات تهران
+                const url =
+                    'https://www.google.com/maps?q=35.6626627,51.3108224'; // لینک دقیق آدرس
                 await launchUrl(Uri.parse(url));
               },
             ),
             const SizedBox(height: 32),
             const Text(
               'فرم تماس با ما',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Form(
@@ -235,6 +218,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
           ],
         ),
       ),
+      bottomNavigationBar: const Footer(), // اضافه کردن Footer مانند سایر صفحات
     );
   }
 
@@ -244,35 +228,121 @@ class _ContactUsPageState extends State<ContactUsPage> {
     String value,
     VoidCallback onTap,
   ) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.blue.shade900),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+    bool isEmail = title == 'ایمیل';
+    bool isAddress = title == 'آدرس';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.blue.shade900),
+              const SizedBox(width: 16),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (isEmail)
+            InkWell(
+              onTap: onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-              ],
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.green.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.shade100,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.email, color: Colors.green.shade700, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textDirection: TextDirection.ltr,
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.send, color: Colors.green.shade600, size: 16),
+                  ],
+                ),
+              ),
+            )
+          else if (isAddress)
+            InkWell(
+              onTap: onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.orange.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.shade100,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.orange.shade700,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.orange.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textDirection: TextDirection.rtl,
+                      ),
+                    ),
+                    Icon(Icons.map, color: Colors.orange.shade600, size: 16),
+                  ],
+                ),
+              ),
+            )
+          else
+            InkWell(
+              onTap: onTap,
+              child: Text(
+                value,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -300,8 +370,11 @@ class _ContactUsPageState extends State<ContactUsPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
-                ...numbers.map((number) => InkWell(
+                const SizedBox(height: 8),
+                ...numbers.map(
+                  (number) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: InkWell(
                       onTap: () async {
                         final Uri phoneLaunchUri = Uri(
                           scheme: 'tel',
@@ -311,18 +384,54 @@ class _ContactUsPageState extends State<ContactUsPage> {
                           await launchUrl(phoneLaunchUri);
                         }
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          number['display']!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        margin: const EdgeInsets.only(bottom: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.blue.shade200),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blue.shade100,
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.phone,
+                              color: Colors.blue.shade700,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              number['display']!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textDirection: TextDirection.ltr,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.call,
+                              color: Colors.green.shade600,
+                              size: 16,
+                            ),
+                          ],
                         ),
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -330,4 +439,4 @@ class _ContactUsPageState extends State<ContactUsPage> {
       ),
     );
   }
-} 
+}
